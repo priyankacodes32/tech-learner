@@ -277,14 +277,17 @@ export const setCourseAssignment = createServerFn({ method: "POST" })
   .inputValidator((data: { userId: string; courseId: string; assigned: boolean }) => data)
   .handler(async ({ data, context }) => {
     await requireAdminOrAssigner(context);
+    // Role is verified above; write with the service role so assigners (who have no SELECT
+    // policy on assignments, which upserts need) can allot courses just like admins.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const query = data.assigned
-      ? context.supabase
+      ? supabaseAdmin
           .from("course_assignments")
           .upsert(
             { user_id: data.userId, course_id: data.courseId },
             { onConflict: "user_id,course_id" },
           )
-      : context.supabase
+      : supabaseAdmin
           .from("course_assignments")
           .delete()
           .eq("user_id", data.userId)

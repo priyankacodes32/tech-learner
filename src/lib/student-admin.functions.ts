@@ -29,11 +29,14 @@ export const createStudentAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => studentAccountSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: hasAdminRole, error: roleError } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
-    });
-    if (roleError || !hasAdminRole) throw new Error("Forbidden");
+    // Admins and assigners may create student logins.
+    const [admin, assigner] = await Promise.all([
+      context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
+      context.supabase.rpc("has_role", { _user_id: context.userId, _role: "assigner" }),
+    ]);
+    if ((admin.error || !admin.data) && (assigner.error || !assigner.data)) {
+      throw new Error("Forbidden");
+    }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const normalizedPhone = normalizePhone(data.phone, data.country as CountryCode);
