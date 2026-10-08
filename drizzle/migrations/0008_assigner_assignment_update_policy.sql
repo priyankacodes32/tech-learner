@@ -1,0 +1,1 @@
+CREATE POLICY "Assigners can update assignments" ON public.course_assignments FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'assigner')) WITH CHECK (public.has_role(auth.uid(), 'assigner'));

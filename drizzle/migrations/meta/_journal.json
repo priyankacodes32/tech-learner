@@ -1,0 +1,76 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791135037821,
+      "tag": "0000_create_user_roles",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791135937930,
+      "tag": "0001_create_contact_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791182819408,
+      "tag": "0002_create_academy_management",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791200000000,
+      "tag": "0003_course_video_upload",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791210000000,
+      "tag": "0004_course_access_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791220000000,
+      "tag": "0005_add_assigner_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791220100000,
+      "tag": "0006_course_curation_and_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791220200000,
+      "tag": "0007_student_request_update_policy",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791220300000,
+      "tag": "0008_assigner_assignment_update_policy",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791220400000,
+      "tag": "0009_assigner_assignment_delete_policy",
+      "breakpoints": true
+    }
+  ]
+}

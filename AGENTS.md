@@ -1,0 +1,5 @@
+- Keep the student dashboard as a data-ready UI with local sample content until authenticated course records are introduced, so the initial experience remains previewable without seeded user accounts.
+- Keep role-based destinations protected by authenticated route guards, and verify administrative roles against the database before showing admin pages.
+- Keep academy enrollment contact-led: public visitors submit an inquiry, and only admins can review it or provision student phone/password credentials.
+- Centralize international phone parsing in `src/lib/phone-auth.ts` so credential creation and sign-in use the same canonical number.
+- Keep academy management in dedicated admin pages backed by RLS-protected category, course, profile, and assignment records; disable users instead of deleting them.
