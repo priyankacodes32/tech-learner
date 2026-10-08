@@ -105,11 +105,11 @@ function UsersPage() {
                   </p>
                   <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                     <span>
-                      {student.device
-                        ? `Device registered ${new Date(student.device.bound_at).toLocaleDateString()}`
+                      {student.devices.length
+                        ? `${student.devices.length} of 2 devices registered`
                         : "No device registered yet"}
                     </span>
-                    {student.device && (
+                    {student.devices.length > 0 && (
                       <Button
                         type="button"
                         size="sm"
@@ -118,14 +118,14 @@ function UsersPage() {
                         onClick={async () => {
                           if (
                             !confirm(
-                              "Reset this student's registered device? The next device they watch a video on becomes their registered device.",
+                              "Reset this student's registered devices? The next two devices they watch a video on become their registered devices.",
                             )
                           )
                             return;
                           try {
                             await resetDevice({ data: { userId: student.user_id } });
                             await qc.invalidateQueries({ queryKey: ["admin-students"] });
-                            toast.success("Device reset");
+                            toast.success("Devices reset");
                           } catch (error) {
                             toast.error(
                               error instanceof Error ? error.message : "Could not reset device",
@@ -133,7 +133,7 @@ function UsersPage() {
                           }
                         }}
                       >
-                        Reset device
+                        Reset devices
                       </Button>
                     )}
                   </div>

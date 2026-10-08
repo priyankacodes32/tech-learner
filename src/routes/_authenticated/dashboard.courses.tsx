@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { CourseCard } from "@/components/student/course-card";
 import { CourseDetailSheet } from "@/components/student/course-detail-sheet";
-import { StudentShell } from "@/components/student/student-shell";
+import { PageHeader, StudentShell } from "@/components/student/student-shell";
 import { getMyAssignedCourses } from "@/lib/academy-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/courses")({
@@ -44,14 +44,11 @@ function MyCoursesPage() {
   return (
     <StudentShell>
       <section aria-labelledby="my-courses">
-        <div className="mb-6">
-          <h1 id="my-courses" className="font-display text-2xl font-bold sm:text-3xl">
-            Enrolled
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Every course currently assigned to you.
-          </p>
-        </div>
+        <PageHeader
+          id="my-courses"
+          title="Enrolled"
+          description="Every course currently assigned to you."
+        />
         {visible.length ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {visible.map((assignment) => (

@@ -73,7 +73,7 @@ function WatchPage() {
   const wrongDevice =
     accessError instanceof Error && accessError.message.includes("DEVICE_MISMATCH");
   const blockedMessage = wrongDevice
-    ? "This account is registered to a different device, so this video can only be watched there. Ask your academy admin to reset your device if you have changed phones or computers."
+    ? "This account is already registered on 2 other devices, which is the maximum, so this video can't be played here. Ask your academy admin to reset your devices if you have changed phones or computers."
     : accessError instanceof Error
       ? accessError.message
       : "This video isn't available. It may not be assigned to you — go back and try again.";

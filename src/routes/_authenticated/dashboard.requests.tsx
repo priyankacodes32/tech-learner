@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { StatusBadge } from "@/components/student/course-card";
-import { StudentShell } from "@/components/student/student-shell";
+import { PageHeader, StudentShell } from "@/components/student/student-shell";
 import { getMyCourseRequests } from "@/lib/academy-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/requests")({
@@ -30,14 +30,11 @@ function RequestsPage() {
   return (
     <StudentShell>
       <section aria-labelledby="requested-courses">
-        <div className="mb-6">
-          <h1 id="requested-courses" className="font-display text-2xl font-bold sm:text-3xl">
-            Request
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Updates on the courses you've requested access to.
-          </p>
-        </div>
+        <PageHeader
+          id="requested-courses"
+          title="Request"
+          description="Updates on the courses you've requested access to."
+        />
         {requests.length ? (
           <div className="space-y-3">
             {requests.map((request) => (

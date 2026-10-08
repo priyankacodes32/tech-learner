@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Headphones } from "lucide-react";
 
-import { StudentShell } from "@/components/student/student-shell";
+import { PageHeader, StudentShell } from "@/components/student/student-shell";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/dashboard/support")({
@@ -18,14 +18,11 @@ function SupportPage() {
   return (
     <StudentShell>
       <section aria-labelledby="support">
-        <div className="mb-6">
-          <h1 id="support" className="font-display text-2xl font-bold sm:text-3xl">
-            Support
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Need a hand? The academy team can help.
-          </p>
-        </div>
+        <PageHeader
+          id="support"
+          title="Support"
+          description="Need a hand? The academy team can help."
+        />
         <div className="flex max-w-md flex-col items-start gap-4 rounded-lg border border-border bg-card p-6">
           <span className="grid size-11 place-items-center rounded-full bg-secondary text-primary">
             <Headphones className="size-5" />

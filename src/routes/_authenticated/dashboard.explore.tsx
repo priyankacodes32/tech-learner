@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import { CourseCard } from "@/components/student/course-card";
 import { CourseDetailSheet } from "@/components/student/course-detail-sheet";
-import { StudentShell } from "@/components/student/student-shell";
+import { PageHeader, StudentShell } from "@/components/student/student-shell";
 import {
   getExploreCourses,
   getMyCourseRequests,
@@ -70,14 +70,11 @@ function ExplorePage() {
   return (
     <StudentShell>
       <section aria-labelledby="explore-courses">
-        <div className="mb-6">
-          <h1 id="explore-courses" className="font-display text-2xl font-bold sm:text-3xl">
-            Explore
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Other academy courses. Request access and an admin will review it.
-          </p>
-        </div>
+        <PageHeader
+          id="explore-courses"
+          title="Explore"
+          description="Other academy courses. Request access and an admin will review it."
+        />
         {visibleCourses.length ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {visibleCourses.map((course) => (

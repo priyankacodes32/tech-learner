@@ -215,14 +215,16 @@ export const listStudents = createServerFn({ method: "GET" })
             },
         ),
     ]);
-    const deviceMap = new Map((devices ?? []).map((d) => [d.user_id, d]));
+    const devicesByUser = new Map<string, Array<{ bound_at: string; user_agent: string | null }>>();
+    for (const d of devices ?? [])
+      devicesByUser.set(d.user_id, [...(devicesByUser.get(d.user_id) ?? []), d]);
     const profileMap = new Map((profiles ?? []).map((item) => [item.user_id, item]));
     return {
       courses: courses ?? [],
       students: (roles ?? []).map((role) => ({
         ...role,
         profile: profileMap.get(role.user_id) ?? null,
-        device: deviceMap.get(role.user_id) ?? null,
+        devices: devicesByUser.get(role.user_id) ?? [],
         courseIds: (assignments ?? [])
           .filter((a) => a.user_id === role.user_id)
           .map((a) => a.course_id),
@@ -369,10 +371,12 @@ export const getMyAssignedCourses = createServerFn({ method: "GET" })
   });
 
 const VIDEO_URL_TTL_SECONDS = 900;
+const MAX_DEVICES_PER_STUDENT = 2;
 
 // The only place a video location leaves the server. Checks, in order: the student is
-// enrolled in this course, the enrollment has not expired, and the request comes from the
-// one device registered to this student (the first device to open a video is registered).
+// enrolled in this course, the enrollment has not expired, and the request comes from one
+// of the (max two) devices registered to this student — the first two devices to open a
+// video are registered.
 export const getCourseVideoAccess = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { courseId: string; deviceId: string }) => data)
@@ -399,24 +403,33 @@ export const getCourseVideoAccess = createServerFn({ method: "POST" })
     if (assignment.expires_at && new Date(assignment.expires_at).getTime() < Date.now())
       throw new Error("Your access to this course has expired.");
 
-    const devices = (supabaseAdmin as unknown as SupabaseClient).from("student_devices");
-    const { data: bound } = await devices
+    // Up to MAX_DEVICES_PER_STUDENT devices may watch at once; a third is refused until an admin resets.
+    const deviceTable = () => (supabaseAdmin as unknown as SupabaseClient).from("student_devices");
+    const { data: registered } = await deviceTable()
       .select("device_id")
-      .eq("user_id", context.userId)
-      .maybeSingle();
+      .eq("user_id", context.userId);
     const userAgent = getRequestHeader("user-agent")?.slice(0, 300) ?? null;
-    if (!bound) {
-      const { error: bindError } = await (supabaseAdmin as unknown as SupabaseClient)
-        .from("student_devices")
-        .insert({ user_id: context.userId, device_id: deviceId, user_agent: userAgent });
-      if (bindError) throw new Error("Could not register this device. Please try again.");
-    } else if (bound.device_id !== deviceId) {
+    if ((registered ?? []).some((d) => d.device_id === deviceId)) {
+      await deviceTable()
+        .update({ last_seen_at: new Date().toISOString(), user_agent: userAgent })
+        .eq("user_id", context.userId)
+        .eq("device_id", deviceId);
+    } else if ((registered ?? []).length >= MAX_DEVICES_PER_STUDENT) {
       throw new Error("DEVICE_MISMATCH");
     } else {
-      await (supabaseAdmin as unknown as SupabaseClient)
-        .from("student_devices")
-        .update({ last_seen_at: new Date().toISOString(), user_agent: userAgent })
-        .eq("user_id", context.userId);
+      const { error: bindError } = await deviceTable().insert({
+        user_id: context.userId,
+        device_id: deviceId,
+        user_agent: userAgent,
+      });
+      if (bindError) {
+        // The database trigger is the final guard against a race registering a third device.
+        throw new Error(
+          bindError.message.includes("DEVICE_LIMIT")
+            ? "DEVICE_MISMATCH"
+            : "Could not register this device. Please try again.",
+        );
+      }
     }
 
     const { data: course } = await supabaseAdmin

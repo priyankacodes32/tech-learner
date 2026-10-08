@@ -38,6 +38,39 @@ const mobileLinks = [
   { to: "/dashboard/settings" as const, label: "Settings", icon: Settings },
 ];
 
+// Shared page header: a soft, nearly transparent tinted panel with a consistent type scale.
+export function PageHeader({
+  id,
+  eyebrow,
+  title,
+  description,
+  aside,
+}: {
+  id?: string;
+  eyebrow?: string;
+  title: string;
+  description: string;
+  aside?: ReactNode;
+}) {
+  return (
+    <header className="mb-8 flex flex-col justify-between gap-5 rounded-2xl border border-primary/10 bg-primary/[0.045] px-5 py-6 sm:px-7 md:flex-row md:items-center">
+      <div className="min-w-0">
+        {eyebrow && (
+          <p className="text-xs font-bold uppercase tracking-wide text-primary">{eyebrow}</p>
+        )}
+        <h1
+          id={id}
+          className="mt-1 font-display text-2xl font-bold leading-tight sm:text-[1.75rem]"
+        >
+          {title}
+        </h1>
+        <p className="mt-1.5 max-w-xl text-sm leading-6 text-muted-foreground">{description}</p>
+      </div>
+      {aside}
+    </header>
+  );
+}
+
 export function StudentShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -200,7 +233,7 @@ export function StudentShell({ children }: { children: ReactNode }) {
           />
         )}
 
-        <main className="min-w-0 flex-1 pb-24 lg:pb-10">
+        <main className="min-w-0 flex-1 bg-gradient-to-b from-primary/[0.03] via-transparent to-transparent pb-24 lg:pb-10">
           <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 px-5 py-4 backdrop-blur-xl sm:px-8 lg:px-10">
             <div className="mx-auto flex max-w-7xl items-center gap-3">
               <Button

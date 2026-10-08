@@ -1,13 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Clock3 } from "lucide-react";
+import { BookOpen, Clock3, TimerReset } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { CourseCard } from "@/components/student/course-card";
-import { StudentShell } from "@/components/student/student-shell";
-import { getMyAssignedCourses } from "@/lib/academy-admin.functions";
+import { PageHeader, StudentShell } from "@/components/student/student-shell";
+import { getMyAssignedCourses, getMyCourseRequests } from "@/lib/academy-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({
@@ -45,6 +45,12 @@ function StudentDashboard() {
     queryKey: ["my-assigned-courses"],
     queryFn: () => loadAssigned(),
   });
+  const loadRequests = useServerFn(getMyCourseRequests);
+  const { data: requests = [] } = useQuery({
+    queryKey: ["my-course-requests"],
+    queryFn: () => loadRequests(),
+  });
+  const pendingCount = requests.filter((r) => r.status === "pending").length;
   const [now, setNow] = useState(() => Date.now());
   // Nearest upcoming expiry across the student's enrollments (null = nothing expires).
   const expiresAt = useMemo(() => {
@@ -65,28 +71,36 @@ function StudentDashboard() {
 
   return (
     <StudentShell>
-      <section className="mb-9 flex flex-col justify-between gap-5 md:flex-row md:items-end">
-        <div>
-          <h1 className="font-display text-3xl font-bold sm:text-4xl">Good to see you.</h1>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-            Pick up where you left off, or find your next skill to master.
-          </p>
-        </div>
-        <div className="flex items-center gap-5 border-l-2 border-primary pl-4">
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground">ACTIVE ACCESS</p>
-            <p className="mt-1 text-sm font-bold">{assignments.length} courses</p>
+      <PageHeader
+        eyebrow="Welcome back"
+        title="Good to see you."
+        description="Pick up where you left off, or find your next skill to master."
+        aside={
+          <div className="grid grid-cols-2 gap-3 sm:min-w-[19rem]">
+            <StatTile
+              icon={<BookOpen className="size-4" />}
+              value={assignments.length}
+              label="Enrolled"
+            />
+            <StatTile
+              icon={<TimerReset className="size-4" />}
+              value={pendingCount}
+              label="Pending requests"
+            />
           </div>
-        </div>
-      </section>
+        }
+      />
 
-      <section aria-labelledby="active-courses">
-        <div className="mb-4 flex items-end justify-between">
+      <section
+        aria-labelledby="active-courses"
+        className="rounded-2xl border border-border/60 bg-muted/40 p-4 sm:p-6"
+      >
+        <div className="mb-5 flex items-end justify-between">
           <div>
-            <h2 id="active-courses" className="font-display text-xl font-bold sm:text-2xl">
+            <h2 id="active-courses" className="font-display text-lg font-bold sm:text-xl">
               Continue learning
             </h2>
-            <p className="mt-1 text-sm text-muted-foreground">Your active, unlocked courses</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">Your active, unlocked courses</p>
           </div>
           {assignments.length > 0 && (
             <Button variant="ghost" className="hidden text-primary sm:inline-flex" asChild>
@@ -111,7 +125,7 @@ function StudentDashboard() {
             ))}
           </div>
         ) : (
-          <div className="rounded-lg border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
+          <div className="rounded-xl border border-dashed border-border bg-card/50 py-14 text-center text-sm text-muted-foreground">
             No courses assigned yet. Head to{" "}
             <Link to="/dashboard/explore" className="font-semibold text-primary hover:underline">
               Explore
@@ -123,7 +137,7 @@ function StudentDashboard() {
 
       {expiresAt !== null && (
         <section
-          className="mt-10 border-y border-warning-border bg-warning-muted px-5 py-5 sm:px-6"
+          className="mt-6 rounded-2xl border border-warning-border/60 bg-warning-muted/60 px-5 py-5 sm:px-6"
           aria-label="Course access expiration notice"
         >
           <div className="flex flex-col gap-5 md:flex-row md:items-center">
@@ -160,6 +174,16 @@ function StudentDashboard() {
         </section>
       )}
     </StudentShell>
+  );
+}
+
+function StatTile({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) {
+  return (
+    <div className="rounded-xl border border-primary/10 bg-card/70 px-4 py-3">
+      <div className="flex items-center gap-1.5 text-primary">{icon}</div>
+      <p className="mt-1.5 font-display text-xl font-bold tabular-nums leading-none">{value}</p>
+      <p className="mt-1 text-xs font-medium text-muted-foreground">{label}</p>
+    </div>
   );
 }
 
